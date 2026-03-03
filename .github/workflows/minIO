@@ -1,0 +1,29 @@
+name: Download Etcd and MinIO ARM Images
+on: workflow_dispatch
+jobs:
+  download-and-save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull ARM64 Images
+        run: |
+          # 拉取 Milvus 官方推荐版本的 Etcd 和 MinIO (原生支持 ARM64)
+          docker pull --platform linux/arm64 quay.io/coreos/etcd:v3.5.5
+          docker pull --platform linux/arm64 minio/minio:RELEASE.2023-03-20T20-16-18Z
+      
+      - name: Save Images to Tar
+        run: |
+          # 分别打包为 tar 文件
+          docker save quay.io/coreos/etcd:v3.5.5 -o etcd-arm64.tar
+          docker save minio/minio:RELEASE.2023-03-20T20-16-18Z -o minio-arm64.tar
+          
+      - name: Upload Etcd Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: etcd-arm64-tar
+          path: etcd-arm64.tar
+          
+      - name: Upload MinIO Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: minio-arm64-tar
+          path: minio-arm64.tar
