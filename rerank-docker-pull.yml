@@ -1,0 +1,27 @@
+name: Pull and Save ARM Docker Image
+on:
+  workflow_dispatch: # 允许手动触发
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free Disk Space (Ubuntu) # 释放 GitHub 运行器的磁盘空间（昇腾镜像较大）
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          docker-images: false
+
+      - name: Set up QEMU for ARM64 # 配置多架构支持
+        uses: docker/setup-qemu-action@v3
+
+      - name: Pull Docker Image
+        # 强制拉取 arm64 架构镜像
+        run: |
+          docker pull --platform linux/arm64 swr.cn-south-1.myhuaweicloud.com/ascend/pytorch:23.0.rc3-pytorch2.1.0-ubuntu20.04
+          docker save swr.cn-south-1.myhuaweicloud.com/ascend/pytorch:23.0.rc3-pytorch2.1.0-ubuntu20.04 | gzip > ascend-pytorch-arm64.tar.gz
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: ascend-pytorch-arm64.tar.gz
