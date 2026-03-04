@@ -5,9 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull ARM64 Image
-        run: docker pull --platform linux/arm64 milvusdb/milvus:v2.3.0
+        run: docker pull --platform linux/arm64 milvusdb/milvus:v2.4.15
       - name: Save Image to Tar
-        run: docker save milvusdb/milvus:v2.3.0 -o milvus-arm64.tar
+        run: docker save milvusdb/milvus:v2.4.15 -o milvus-arm64.tar
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
