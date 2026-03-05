@@ -1,1 +1,30 @@
+name: Download Etcd and MinIO x86 Images
+on: workflow_dispatch
 
+jobs:
+  download-and-save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull x86_64 Images
+        run: |
+          # 拉取 Milvus 官方推荐版本的 Etcd 和 MinIO (x86_64 架构)
+          docker pull --platform linux/amd64 quay.io/coreos/etcd:v3.5.5
+          docker pull --platform linux/amd64 minio/minio:RELEASE.2023-03-20T20-16-18Z
+      
+      - name: Save Images to Tar
+        run: |
+          # 分别打包为 tar 文件
+          docker save quay.io/coreos/etcd:v3.5.5 -o etcd-amd64.tar
+          docker save minio/minio:RELEASE.2023-03-20T20-16-18Z -o minio-amd64.tar
+          
+      - name: Upload Etcd Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: etcd-amd64-tar
+          path: etcd-amd64.tar
+          
+      - name: Upload MinIO Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: minio-amd64-tar
+          path: minio-amd64.tar
