@@ -1,0 +1,26 @@
+name: Download ARM64 Docker Image
+
+on:
+  workflow_dispatch: # 允许在 GitHub 网页上手动触发此任务
+
+jobs:
+  download-and-save:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Elasticsearch ARM64 Image
+        run: |
+          echo "开始拉取 ARM64 架构的 ES 7.10.2 镜像..."
+          # 强制指定 platform 为 linux/arm64
+          docker pull --platform linux/arm64 docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+          
+      - name: Save Docker Image to Tar
+        run: |
+          echo "正在打包镜像为 tar 文件..."
+          docker save -o es-7.10.2-arm64.tar docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+          
+      - name: Upload Tar as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: elasticsearch-7.10.2-arm64
+          path: es-7.10.2-arm64.tar
+          retention-days: 1 # 文件保留1天即可，下载完就没用了
