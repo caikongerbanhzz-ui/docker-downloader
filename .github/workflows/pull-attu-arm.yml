@@ -1,0 +1,34 @@
+name: Pull Attu ARM64 Image
+
+on:
+  workflow_dispatch: # 允许手动点击按钮触发执行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Pull Attu ARM64 Image
+        run: |
+          # 明确指定拉取 linux/arm64 架构的镜像
+          docker pull --platform linux/arm64 zilliz/attu:latest
+          
+          # 给镜像打个别名（可选，方便识别）
+          docker tag zilliz/attu:latest attu-arm64:latest
+
+      - name: Save Image to Tar
+        run: |
+          # 将镜像打包成 tar 文件
+          docker save attu-arm64:latest -o attu_arm64.tar
+          
+          # 压缩以减小文件体积（Attu 镜像大约 100MB+，压缩后更小）
+          gzip attu_arm64.tar
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: attu-arm64-image
+          path: attu_arm64.tar.gz
+          retention-days: 1 # 节省空间，只保留1天
